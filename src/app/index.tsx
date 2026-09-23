@@ -13,7 +13,7 @@ export default function HomeScreen() {
       id: "1",
       title: "Learn React Native",
       completed: false,
-      date: getToday(),
+      date: "2025-01-01",
     },
     {
       id: "2",
@@ -69,19 +69,21 @@ export default function HomeScreen() {
         </Pressable>
 
         <View style={styles.taskList}>
-          {tasks.map((task) => (
-            <View key={task.id} style={styles.taskItem}>
-              <Pressable onPress={() => toggleTask(task.id)}>
-                <Text style={styles.taskTitle}>
-                  {task.completed ? "☑" : "☐"} {task.title}
-                </Text>
-              </Pressable>
+          {tasks
+            .filter((task) => task.date === getToday())
+            .map((task) => (
+              <View key={task.id} style={styles.taskItem}>
+                <Pressable onPress={() => toggleTask(task.id)}>
+                  <Text style={styles.taskTitle}>
+                    {task.completed ? "☑" : "☐"} {task.title}
+                  </Text>
+                </Pressable>
 
-              <Pressable onPress={() => deleteTask(task.id)}>
-                <Text style={styles.deleteText}>Delete</Text>
-              </Pressable>
-            </View>
-          ))}
+                <Pressable onPress={() => deleteTask(task.id)}>
+                  <Text style={styles.deleteText}>Delete</Text>
+                </Pressable>
+              </View>
+            ))}
         </View>
       </View>
     </SafeAreaView>
