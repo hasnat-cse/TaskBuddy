@@ -7,21 +7,31 @@ function getToday() {
   return new Date().toISOString().split("T")[0];
 }
 
+function carryForwardTasks(tasks: Task[]): Task[] {
+  const today = getToday();
+
+  return tasks.map((task) =>
+    !task.completed && task.date !== today ? { ...task, date: today } : task,
+  );
+}
+
 export default function HomeScreen() {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: "1",
-      title: "Learn React Native",
-      completed: false,
-      date: "2025-01-01",
-    },
-    {
-      id: "2",
-      title: "Build TaskBuddy",
-      completed: true,
-      date: getToday(),
-    },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>(() =>
+    carryForwardTasks([
+      {
+        id: "1",
+        title: "Learn React Native",
+        completed: false,
+        date: "2025-01-01",
+      },
+      {
+        id: "2",
+        title: "Build TaskBuddy",
+        completed: true,
+        date: getToday(),
+      },
+    ]),
+  );
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
 
