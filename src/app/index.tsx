@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Task } from "../types/task";
 
 export default function HomeScreen() {
-  const tasks: Task[] = [
+  const [tasks, setTasks] = useState<Task[]>([
     {
       id: "1",
       title: "Learn React Native",
@@ -14,21 +15,33 @@ export default function HomeScreen() {
       title: "Build TaskBuddy",
       completed: true,
     },
-  ];
+  ]);
+
+  function toggleTask(id: string) {
+    setTasks((currentTasks) =>
+      currentTasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task,
+      ),
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>TaskBuddy</Text>
-        <Text style={styles.subtitle}>Today</Text>
+        <Text style={styles.subtitle}>Tasks</Text>
 
         <View style={styles.taskList}>
           {tasks.map((task) => (
-            <View key={task.id} style={styles.taskItem}>
+            <Pressable
+              key={task.id}
+              style={styles.taskItem}
+              onPress={() => toggleTask(task.id)}
+            >
               <Text style={styles.taskTitle}>
                 {task.completed ? "☑" : "☐"} {task.title}
               </Text>
-            </View>
+            </Pressable>
           ))}
         </View>
       </View>
