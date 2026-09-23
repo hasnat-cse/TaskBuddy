@@ -40,6 +40,10 @@ export default function HomeScreen() {
     setNewTaskTitle("");
   }
 
+  function deleteTask(id: string) {
+    setTasks((currentTasks) => currentTasks.filter((task) => task.id !== id));
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -59,15 +63,17 @@ export default function HomeScreen() {
 
         <View style={styles.taskList}>
           {tasks.map((task) => (
-            <Pressable
-              key={task.id}
-              style={styles.taskItem}
-              onPress={() => toggleTask(task.id)}
-            >
-              <Text style={styles.taskTitle}>
-                {task.completed ? "☑" : "☐"} {task.title}
-              </Text>
-            </Pressable>
+            <View key={task.id} style={styles.taskItem}>
+              <Pressable onPress={() => toggleTask(task.id)}>
+                <Text style={styles.taskTitle}>
+                  {task.completed ? "☑" : "☐"} {task.title}
+                </Text>
+              </Pressable>
+
+              <Pressable onPress={() => deleteTask(task.id)}>
+                <Text style={styles.deleteText}>Delete</Text>
+              </Pressable>
+            </View>
           ))}
         </View>
       </View>
@@ -133,5 +139,9 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  deleteText: {
+    fontSize: 14,
+    marginTop: 8,
   },
 });
