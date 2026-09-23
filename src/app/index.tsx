@@ -3,17 +3,23 @@ import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Task } from "../types/task";
 
+function getToday() {
+  return new Date().toISOString().split("T")[0];
+}
+
 export default function HomeScreen() {
   const [tasks, setTasks] = useState<Task[]>([
     {
       id: "1",
       title: "Learn React Native",
       completed: false,
+      date: getToday(),
     },
     {
       id: "2",
       title: "Build TaskBuddy",
       completed: true,
+      date: getToday(),
     },
   ]);
 
@@ -35,6 +41,7 @@ export default function HomeScreen() {
       id: Date.now().toString(),
       title,
       completed: false,
+      date: getToday(),
     };
     setTasks((currentTasks) => [...currentTasks, newTask]);
     setNewTaskTitle("");
