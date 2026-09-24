@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -111,6 +112,12 @@ export default function HomeScreen() {
           <Text style={styles.addButtonText}>Add Task</Text>
         </Pressable>
 
+        <Link href="/history" asChild>
+          <Pressable style={styles.historyButton}>
+            <Text style={styles.historyButtonText}>View History</Text>
+          </Pressable>
+        </Link>
+
         <View style={styles.taskList}>
           {tasks
             .filter((task) => task.date === getToday())
@@ -195,5 +202,16 @@ const styles = StyleSheet.create({
   deleteText: {
     fontSize: 14,
     marginTop: 8,
+  },
+  historyButton: {
+    marginTop: 12,
+    padding: 14,
+    borderRadius: 8,
+    alignItems: "center",
+    borderWidth: 1,
+  },
+  historyButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
