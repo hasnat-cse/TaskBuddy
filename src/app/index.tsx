@@ -1,4 +1,5 @@
-import { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Task } from "../types/task";
@@ -6,6 +7,8 @@ import { Task } from "../types/task";
 function getToday() {
   return new Date().toISOString().split("T")[0];
 }
+
+const TASKS_STORAGE_KEY = "taskbuddy_tasks";
 
 function carryForwardTasks(tasks: Task[]): Task[] {
   const today = getToday();
@@ -34,6 +37,26 @@ export default function HomeScreen() {
   );
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
+
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(tasks));
+  }, [tasks]);
+
+  async function loadTasks() {
+    const storedTasks = await AsyncStorage.getItem(TASKS_STORAGE_KEY);
+
+    if (!storedTasks) {
+      return;
+    }
+
+    const parsedTasks: Task[] = JSON.parse(storedTasks);
+
+    setTasks(carryForwardTasks(parsedTasks));
+  }
 
   function toggleTask(id: string) {
     setTasks((currentTasks) =>
