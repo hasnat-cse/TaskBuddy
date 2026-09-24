@@ -8,13 +8,23 @@ function getToday() {
   return new Date().toISOString().split("T")[0];
 }
 
+function getYesterday() {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  return yesterday.toISOString().split("T")[0];
+}
+
 const TASKS_STORAGE_KEY = "taskbuddy_tasks";
 
 function carryForwardTasks(tasks: Task[]): Task[] {
   const today = getToday();
+  const yesterday = getYesterday();
 
   return tasks.map((task) =>
-    !task.completed && task.date !== today ? { ...task, date: today } : task,
+    !task.completed && task.date === yesterday
+      ? { ...task, date: today }
+      : task,
   );
 }
 
