@@ -1,9 +1,9 @@
+import { Task } from "@/types/task";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Task } from "../types/task";
 
 function getToday() {
   return new Date().toISOString().split("T")[0];
@@ -22,11 +22,21 @@ function carryForwardTasks(tasks: Task[]): Task[] {
   const today = getToday();
   const yesterday = getYesterday();
 
-  return tasks.map((task) =>
-    !task.completed && task.date === yesterday
-      ? { ...task, date: today }
-      : task,
-  );
+  const carriedForwardTasks = tasks
+    .filter((task) => !task.completed && task.date === yesterday)
+    .filter(
+      (task) =>
+        !tasks.some(
+          (existingTask) => existingTask.id === `${task.id}-${today}`,
+        ),
+    )
+    .map((task) => ({
+      ...task,
+      id: `${task.id}-${today}`,
+      date: today,
+    }));
+
+  return [...tasks, ...carriedForwardTasks];
 }
 
 export default function HomeScreen() {
