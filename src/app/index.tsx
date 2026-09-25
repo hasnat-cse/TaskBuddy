@@ -6,14 +6,24 @@ import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 function getToday() {
-  return new Date().toISOString().split("T")[0];
+  const today = new Date();
+
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
 
 function getYesterday() {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
 
-  return yesterday.toISOString().split("T")[0];
+  const year = yesterday.getFullYear();
+  const month = String(yesterday.getMonth() + 1).padStart(2, "0");
+  const day = String(yesterday.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
 
 const TASKS_STORAGE_KEY = "taskbuddy_tasks";
@@ -23,39 +33,32 @@ function carryForwardTasks(tasks: Task[]): Task[] {
   const yesterday = getYesterday();
 
   const carriedForwardTasks = tasks
-    .filter((task) => !task.completed && task.date === yesterday)
+    .filter(
+      (task) =>
+        !task.completed &&
+        task.date === yesterday &&
+        !task.carryForwardDisabled,
+    )
     .filter(
       (task) =>
         !tasks.some(
-          (existingTask) => existingTask.id === `${task.id}-${today}`,
+          (existingTask) =>
+            existingTask.carriedForwardFrom === task.id &&
+            existingTask.date === today,
         ),
     )
     .map((task) => ({
       ...task,
       id: `${task.id}-${today}`,
       date: today,
+      carriedForwardFrom: task.id,
     }));
 
   return [...tasks, ...carriedForwardTasks];
 }
 
 export default function HomeScreen() {
-  const [tasks, setTasks] = useState<Task[]>(() =>
-    carryForwardTasks([
-      {
-        id: "1",
-        title: "Learn React Native",
-        completed: false,
-        date: "2025-01-01",
-      },
-      {
-        id: "2",
-        title: "Build TaskBuddy",
-        completed: true,
-        date: getToday(),
-      },
-    ]),
-  );
+  const [tasks, setTasks] = useState<Task[]>([]);
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
 
@@ -102,7 +105,25 @@ export default function HomeScreen() {
   }
 
   function deleteTask(id: string) {
-    setTasks((currentTasks) => currentTasks.filter((task) => task.id !== id));
+    setTasks((currentTasks) => {
+      const taskToDelete = currentTasks.find((task) => task.id === id);
+
+      if (!taskToDelete) {
+        return currentTasks;
+      }
+
+      if (taskToDelete.carriedForwardFrom) {
+        return currentTasks
+          .filter((task) => task.id !== id)
+          .map((task) =>
+            task.id === taskToDelete.carriedForwardFrom
+              ? { ...task, carryForwardDisabled: true }
+              : task,
+          );
+      }
+
+      return currentTasks.filter((task) => task.id !== id);
+    });
   }
 
   return (

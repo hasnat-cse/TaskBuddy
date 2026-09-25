@@ -9,6 +9,25 @@ import { Task } from "@/types/task";
 
 const TASKS_STORAGE_KEY = "taskbuddy_tasks";
 
+function groupTasksByDate(tasks: Task[]) {
+  return tasks.reduce<Record<string, Task[]>>((groups, task) => {
+    if (!groups[task.date]) {
+      groups[task.date] = [];
+    }
+
+    groups[task.date].push(task);
+    return groups;
+  }, {});
+}
+
+function formatDate(date: string) {
+  return new Date(`${date}T00:00:00`).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 export default function HistoryScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
 
@@ -35,13 +54,17 @@ export default function HistoryScreen() {
         </Text>
 
         <View style={styles.taskList}>
-          {tasks.map((task) => (
-            <View key={task.id} style={styles.taskItem}>
-              <Text style={styles.taskTitle}>
-                {task.completed ? "☑" : "☐"} {task.title}
-              </Text>
+          {Object.entries(groupTasksByDate(tasks)).map(([date, dateTasks]) => (
+            <View key={date}>
+              <Text style={styles.dateTitle}>{formatDate(date)}</Text>
 
-              <Text style={styles.taskDate}>{task.date}</Text>
+              {dateTasks.map((task) => (
+                <View key={task.id} style={styles.taskItem}>
+                  <Text style={styles.taskTitle}>
+                    {task.completed ? "☑" : "☐"} {task.title}
+                  </Text>
+                </View>
+              ))}
             </View>
           ))}
         </View>
@@ -95,8 +118,9 @@ const styles = StyleSheet.create({
   taskTitle: {
     fontSize: 16,
   },
-  taskDate: {
-    fontSize: 14,
-    marginTop: 8,
+  dateTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 12,
   },
 });
