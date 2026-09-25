@@ -3,6 +3,5 @@ export type Task = {
   title: string;
   completed: boolean;
   date: string;
-  carriedForwardFrom?: string;
-  carryForwardDisabled?: boolean;
+  carriedForward?: boolean;
 };

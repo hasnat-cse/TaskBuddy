@@ -15,46 +15,29 @@ function getToday() {
   return `${year}-${month}-${day}`;
 }
 
-function getYesterday() {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-
-  const year = yesterday.getFullYear();
-  const month = String(yesterday.getMonth() + 1).padStart(2, "0");
-  const day = String(yesterday.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
 const TASKS_STORAGE_KEY = "taskbuddy_tasks";
 
-function carryForwardTasks(tasks: Task[]): Task[] {
+function carryForwardTasks(tasks: Task[]) {
   const today = getToday();
-  const yesterday = getYesterday();
 
-  const carriedForwardTasks = tasks
-    .filter(
-      (task) =>
-        !task.completed &&
-        task.date === yesterday &&
-        !task.carryForwardDisabled,
-    )
-    .filter(
-      (task) =>
-        !tasks.some(
-          (existingTask) =>
-            existingTask.carriedForwardFrom === task.id &&
-            existingTask.date === today,
-        ),
-    )
-    .map((task) => ({
-      ...task,
-      id: `${task.id}-${today}`,
-      date: today,
-      carriedForwardFrom: task.id,
-    }));
+  const tasksToCarryForward = tasks.filter(
+    (task) => !task.completed && task.date !== today && !task.carriedForward,
+  );
 
-  return [...tasks, ...carriedForwardTasks];
+  const carriedForwardTasks = tasksToCarryForward.map((task) => ({
+    ...task,
+    id: `${task.id}-${today}`,
+    date: today,
+    carriedForward: false,
+  }));
+
+  const updatedTasks = tasks.map((task) =>
+    tasksToCarryForward.some((taskToCarry) => taskToCarry.id === task.id)
+      ? { ...task, carriedForward: true }
+      : task,
+  );
+
+  return [...updatedTasks, ...carriedForwardTasks];
 }
 
 export default function HomeScreen() {
@@ -99,31 +82,14 @@ export default function HomeScreen() {
       title,
       completed: false,
       date: getToday(),
+      carriedForward: false,
     };
     setTasks((currentTasks) => [...currentTasks, newTask]);
     setNewTaskTitle("");
   }
 
   function deleteTask(id: string) {
-    setTasks((currentTasks) => {
-      const taskToDelete = currentTasks.find((task) => task.id === id);
-
-      if (!taskToDelete) {
-        return currentTasks;
-      }
-
-      if (taskToDelete.carriedForwardFrom) {
-        return currentTasks
-          .filter((task) => task.id !== id)
-          .map((task) =>
-            task.id === taskToDelete.carriedForwardFrom
-              ? { ...task, carryForwardDisabled: true }
-              : task,
-          );
-      }
-
-      return currentTasks.filter((task) => task.id !== id);
-    });
+    setTasks((currentTasks) => currentTasks.filter((task) => task.id !== id));
   }
 
   return (
