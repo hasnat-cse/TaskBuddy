@@ -45,6 +45,9 @@ export default function HomeScreen() {
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
 
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editingTaskTitle, setEditingTaskTitle] = useState("");
+
   useEffect(() => {
     loadTasks();
   }, []);
@@ -92,6 +95,28 @@ export default function HomeScreen() {
     setTasks((currentTasks) => currentTasks.filter((task) => task.id !== id));
   }
 
+  function startEditingTask(task: Task) {
+    setEditingTaskId(task.id);
+    setEditingTaskTitle(task.title);
+  }
+
+  function saveEditedTask() {
+    const title = editingTaskTitle.trim();
+
+    if (!title || !editingTaskId) {
+      return;
+    }
+
+    setTasks((currentTasks) =>
+      currentTasks.map((task) =>
+        task.id === editingTaskId ? { ...task, title } : task,
+      ),
+    );
+
+    setEditingTaskId(null);
+    setEditingTaskTitle("");
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -120,15 +145,52 @@ export default function HomeScreen() {
             .filter((task) => task.date === getToday())
             .map((task) => (
               <View key={task.id} style={styles.taskItem}>
-                <Pressable onPress={() => toggleTask(task.id)}>
-                  <Text style={styles.taskTitle}>
-                    {task.completed ? "☑" : "☐"} {task.title}
-                  </Text>
-                </Pressable>
+                {editingTaskId === task.id ? (
+                  <>
+                    <TextInput
+                      value={editingTaskTitle}
+                      onChangeText={setEditingTaskTitle}
+                      style={styles.editInput}
+                      autoFocus
+                    />
 
-                <Pressable onPress={() => deleteTask(task.id)}>
-                  <Text style={styles.deleteText}>Delete</Text>
-                </Pressable>
+                    <View style={styles.taskActions}>
+                      <Pressable onPress={saveEditedTask}>
+                        <Text style={styles.editText}>Save</Text>
+                      </Pressable>
+
+                      <Pressable
+                        onPress={() => {
+                          setEditingTaskId(null);
+                          setEditingTaskTitle("");
+                        }}
+                      >
+                        <Text style={styles.deleteText}>Cancel</Text>
+                      </Pressable>
+                    </View>
+                  </>
+                ) : (
+                  <>
+                    <Pressable
+                      onPress={() => toggleTask(task.id)}
+                      style={styles.taskContent}
+                    >
+                      <Text style={styles.taskTitle}>
+                        {task.completed ? "☑" : "☐"} {task.title}
+                      </Text>
+                    </Pressable>
+
+                    <View style={styles.taskActions}>
+                      <Pressable onPress={() => startEditingTask(task)}>
+                        <Text style={styles.editText}>Edit</Text>
+                      </Pressable>
+
+                      <Pressable onPress={() => deleteTask(task.id)}>
+                        <Text style={styles.deleteText}>Delete</Text>
+                      </Pressable>
+                    </View>
+                  </>
+                )}
               </View>
             ))}
         </View>
@@ -198,7 +260,6 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     fontSize: 14,
-    marginTop: 8,
   },
   historyButton: {
     marginTop: 12,
@@ -209,6 +270,27 @@ const styles = StyleSheet.create({
   },
   historyButtonText: {
     fontSize: 16,
+    fontWeight: "600",
+  },
+  editInput: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+  },
+  taskContent: {
+    flex: 1,
+  },
+
+  taskActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    marginTop: 12,
+  },
+
+  editText: {
+    fontSize: 14,
     fontWeight: "600",
   },
 });
