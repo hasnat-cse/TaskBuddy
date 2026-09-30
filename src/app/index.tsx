@@ -132,11 +132,18 @@ export default function HomeScreen() {
     setEditingTaskTitle("");
   }
 
+  const todayTasks = tasks.filter((task) => task.date === getToday());
+  const completedToday = todayTasks.filter((task) => task.completed).length;
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>TaskBuddy</Text>
-        <Text style={styles.subtitle}>Tasks</Text>
+        <Text style={styles.subtitle}>
+          {todayTasks.length === 0
+            ? "No tasks for today"
+            : `${completedToday} of ${todayTasks.length} tasks completed`}
+        </Text>
 
         <TextInput
           style={styles.input}
@@ -159,7 +166,13 @@ export default function HomeScreen() {
           {tasks
             .filter((task) => task.date === getToday())
             .map((task) => (
-              <View key={task.id} style={styles.taskItem}>
+              <View
+                key={task.id}
+                style={[
+                  styles.taskItem,
+                  task.completed && styles.completedTaskItem,
+                ]}
+              >
                 {editingTaskId === task.id ? (
                   <>
                     <TextInput
@@ -190,7 +203,12 @@ export default function HomeScreen() {
                       onPress={() => toggleTask(task.id)}
                       style={styles.taskContent}
                     >
-                      <Text style={styles.taskTitle}>
+                      <Text
+                        style={[
+                          styles.taskTitle,
+                          task.completed && styles.completedTaskTitle,
+                        ]}
+                      >
                         {task.completed ? "☑" : "☐"} {task.title}
                       </Text>
 
@@ -237,8 +255,9 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 16,
     marginTop: 4,
+    opacity: 0.6,
   },
   emptyState: {
     marginTop: 48,
@@ -260,6 +279,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderRadius: 8,
+    backgroundColor: "#f8f8f8",
   },
   taskTitle: {
     fontSize: 16,
@@ -285,6 +305,10 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     fontSize: 14,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderRadius: 6,
   },
   historyButton: {
     marginTop: 12,
@@ -315,10 +339,21 @@ const styles = StyleSheet.create({
   editText: {
     fontSize: 14,
     fontWeight: "600",
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderRadius: 6,
   },
   completedAt: {
     marginTop: 6,
     fontSize: 13,
     opacity: 0.6,
+  },
+  completedTaskTitle: {
+    textDecorationLine: "line-through",
+    opacity: 0.5,
+  },
+  completedTaskItem: {
+    opacity: 0.7,
   },
 });
