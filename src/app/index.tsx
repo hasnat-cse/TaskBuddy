@@ -71,7 +71,15 @@ export default function HomeScreen() {
   function toggleTask(id: string) {
     setTasks((currentTasks) =>
       currentTasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task,
+        task.id === id
+          ? {
+              ...task,
+              completed: !task.completed,
+              completedAt: task.completed
+                ? undefined
+                : new Date().toISOString(),
+            }
+          : task,
       ),
     );
   }
@@ -178,6 +186,16 @@ export default function HomeScreen() {
                       <Text style={styles.taskTitle}>
                         {task.completed ? "☑" : "☐"} {task.title}
                       </Text>
+
+                      {task.completed && task.completedAt && (
+                        <Text style={styles.completedAt}>
+                          Completed at{" "}
+                          {new Date(task.completedAt).toLocaleTimeString([], {
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })}
+                        </Text>
+                      )}
                     </Pressable>
 
                     <View style={styles.taskActions}>
@@ -281,16 +299,19 @@ const styles = StyleSheet.create({
   taskContent: {
     flex: 1,
   },
-
   taskActions: {
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
     marginTop: 12,
   },
-
   editText: {
     fontSize: 14,
     fontWeight: "600",
+  },
+  completedAt: {
+    marginTop: 6,
+    fontSize: 13,
+    opacity: 0.6,
   },
 });

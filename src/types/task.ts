@@ -4,4 +4,5 @@ export type Task = {
   completed: boolean;
   date: string;
   carriedForward?: boolean;
+  completedAt?: string;
 };

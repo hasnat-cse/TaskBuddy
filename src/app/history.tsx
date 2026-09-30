@@ -63,6 +63,16 @@ export default function HistoryScreen() {
                   <Text style={styles.taskTitle}>
                     {task.completed ? "☑" : "☐"} {task.title}
                   </Text>
+
+                  {task.completed && task.completedAt && (
+                    <Text style={styles.completedAt}>
+                      Completed at{" "}
+                      {new Date(task.completedAt).toLocaleTimeString([], {
+                        hour: "numeric",
+                        minute: "2-digit",
+                      })}
+                    </Text>
+                  )}
                 </View>
               ))}
             </View>
@@ -122,5 +132,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "700",
     marginBottom: 12,
+  },
+  completedAt: {
+    marginTop: 6,
+    fontSize: 13,
+    opacity: 0.6,
   },
 });
