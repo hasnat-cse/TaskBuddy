@@ -1,6 +1,6 @@
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -53,7 +53,7 @@ export default function HistoryScreen() {
           Your previous tasks will appear here.
         </Text>
 
-        <View style={styles.taskList}>
+        <ScrollView style={styles.taskList}>
           {Object.entries(groupTasksByDate(tasks)).map(([date, dateTasks]) => (
             <View key={date}>
               <Text style={styles.dateTitle}>{formatDate(date)}</Text>
@@ -77,7 +77,7 @@ export default function HistoryScreen() {
               ))}
             </View>
           ))}
-        </View>
+        </ScrollView>
 
         <Link href="/" asChild>
           <Pressable style={styles.backButton}>

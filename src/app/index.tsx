@@ -2,7 +2,14 @@ import { Task } from "@/types/task";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 function getToday() {
@@ -148,7 +155,7 @@ export default function HomeScreen() {
           </Pressable>
         </Link>
 
-        <View style={styles.taskList}>
+        <ScrollView style={styles.taskList}>
           {tasks
             .filter((task) => task.date === getToday())
             .map((task) => (
@@ -211,7 +218,7 @@ export default function HomeScreen() {
                 )}
               </View>
             ))}
-        </View>
+        </ScrollView>
       </View>
     </SafeAreaView>
   );
