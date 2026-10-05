@@ -163,9 +163,18 @@ export default function HomeScreen() {
         </Link>
 
         <ScrollView style={styles.taskList}>
-          {tasks
-            .filter((task) => task.date === getToday())
-            .map((task) => (
+          {todayTasks.length > 0 && (
+            <Text style={styles.taskSectionTitle}>Today's tasks</Text>
+          )}
+          {todayTasks.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateTitle}>You're all caught up!</Text>
+              <Text style={styles.emptyStateText}>
+                Add a task above to get started.
+              </Text>
+            </View>
+          ) : (
+            todayTasks.map((task) => (
               <View
                 key={task.id}
                 style={[
@@ -235,7 +244,8 @@ export default function HomeScreen() {
                   </>
                 )}
               </View>
-            ))}
+            ))
+          )}
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -260,8 +270,9 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   emptyState: {
-    marginTop: 48,
     alignItems: "center",
+    marginTop: 40,
+    padding: 24,
   },
   emptyTitle: {
     fontSize: 20,
@@ -355,5 +366,21 @@ const styles = StyleSheet.create({
   },
   completedTaskItem: {
     opacity: 0.7,
+  },
+  emptyStateTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  emptyStateText: {
+    marginTop: 8,
+    fontSize: 14,
+    opacity: 0.6,
+    textAlign: "center",
+  },
+  taskSectionTitle: {
+    marginTop: 32,
+    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: "600",
   },
 });
