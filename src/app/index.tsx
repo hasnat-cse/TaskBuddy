@@ -1,3 +1,4 @@
+import TaskItem from "@/components/TaskItem";
 import { Task } from "@/types/task";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link } from "expo-router";
@@ -175,75 +176,21 @@ export default function HomeScreen() {
             </View>
           ) : (
             todayTasks.map((task) => (
-              <View
+              <TaskItem
                 key={task.id}
-                style={[
-                  styles.taskItem,
-                  task.completed && styles.completedTaskItem,
-                ]}
-              >
-                {editingTaskId === task.id ? (
-                  <>
-                    <TextInput
-                      value={editingTaskTitle}
-                      onChangeText={setEditingTaskTitle}
-                      style={styles.editInput}
-                      autoFocus
-                    />
-
-                    <View style={styles.taskActions}>
-                      <Pressable onPress={saveEditedTask}>
-                        <Text style={styles.editText}>Save</Text>
-                      </Pressable>
-
-                      <Pressable
-                        onPress={() => {
-                          setEditingTaskId(null);
-                          setEditingTaskTitle("");
-                        }}
-                      >
-                        <Text style={styles.deleteText}>Cancel</Text>
-                      </Pressable>
-                    </View>
-                  </>
-                ) : (
-                  <>
-                    <Pressable
-                      onPress={() => toggleTask(task.id)}
-                      style={styles.taskContent}
-                    >
-                      <Text
-                        style={[
-                          styles.taskTitle,
-                          task.completed && styles.completedTaskTitle,
-                        ]}
-                      >
-                        {task.completed ? "☑" : "☐"} {task.title}
-                      </Text>
-
-                      {task.completed && task.completedAt && (
-                        <Text style={styles.completedAt}>
-                          Completed at{" "}
-                          {new Date(task.completedAt).toLocaleTimeString([], {
-                            hour: "numeric",
-                            minute: "2-digit",
-                          })}
-                        </Text>
-                      )}
-                    </Pressable>
-
-                    <View style={styles.taskActions}>
-                      <Pressable onPress={() => startEditingTask(task)}>
-                        <Text style={styles.editText}>Edit</Text>
-                      </Pressable>
-
-                      <Pressable onPress={() => deleteTask(task.id)}>
-                        <Text style={styles.deleteText}>Delete</Text>
-                      </Pressable>
-                    </View>
-                  </>
-                )}
-              </View>
+                task={task}
+                isEditing={editingTaskId === task.id}
+                editingTitle={editingTaskTitle}
+                onToggle={() => toggleTask(task.id)}
+                onEdit={() => startEditingTask(task)}
+                onDelete={() => deleteTask(task.id)}
+                onSave={saveEditedTask}
+                onCancel={() => {
+                  setEditingTaskId(null);
+                  setEditingTaskTitle("");
+                }}
+                onEditingTitleChange={setEditingTaskTitle}
+              />
             ))
           )}
         </ScrollView>
@@ -286,15 +233,6 @@ const styles = StyleSheet.create({
     marginTop: 32,
     gap: 12,
   },
-  taskItem: {
-    padding: 16,
-    borderWidth: 1,
-    borderRadius: 8,
-    backgroundColor: "#f8f8f8",
-  },
-  taskTitle: {
-    fontSize: 16,
-  },
   input: {
     borderWidth: 1,
     borderRadius: 8,
@@ -314,13 +252,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-  deleteText: {
-    fontSize: 14,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderRadius: 6,
-  },
   historyButton: {
     marginTop: 12,
     padding: 14,
@@ -331,41 +262,6 @@ const styles = StyleSheet.create({
   historyButtonText: {
     fontSize: 16,
     fontWeight: "600",
-  },
-  editInput: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-  },
-  taskContent: {
-    flex: 1,
-  },
-  taskActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-    marginTop: 12,
-  },
-  editText: {
-    fontSize: 14,
-    fontWeight: "600",
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderRadius: 6,
-  },
-  completedAt: {
-    marginTop: 6,
-    fontSize: 13,
-    opacity: 0.6,
-  },
-  completedTaskTitle: {
-    textDecorationLine: "line-through",
-    opacity: 0.5,
-  },
-  completedTaskItem: {
-    opacity: 0.7,
   },
   emptyStateTitle: {
     fontSize: 18,
