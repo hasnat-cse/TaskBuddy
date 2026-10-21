@@ -1,6 +1,7 @@
 import TaskItem from "@/components/TaskItem";
+import { loadTasks, saveTasks } from "@/services/taskStorage";
+import { carryForwardTasks, getToday } from "@/services/taskUtils";
 import { Task } from "@/types/task";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -13,41 +14,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-function getToday() {
-  const today = new Date();
-
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-const TASKS_STORAGE_KEY = "taskbuddy_tasks";
-
-function carryForwardTasks(tasks: Task[]) {
-  const today = getToday();
-
-  const tasksToCarryForward = tasks.filter(
-    (task) => !task.completed && task.date !== today && !task.carriedForward,
-  );
-
-  const carriedForwardTasks = tasksToCarryForward.map((task) => ({
-    ...task,
-    id: `${task.id}-${today}`,
-    date: today,
-    carriedForward: false,
-  }));
-
-  const updatedTasks = tasks.map((task) =>
-    tasksToCarryForward.some((taskToCarry) => taskToCarry.id === task.id)
-      ? { ...task, carriedForward: true }
-      : task,
-  );
-
-  return [...updatedTasks, ...carriedForwardTasks];
-}
-
 export default function HomeScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
 
@@ -57,24 +23,21 @@ export default function HomeScreen() {
   const [editingTaskTitle, setEditingTaskTitle] = useState("");
 
   useEffect(() => {
-    loadTasks();
+    async function loadSavedTasks() {
+      const savedTasks = await loadTasks();
+      setTasks(carryForwardTasks(savedTasks));
+    }
+
+    loadSavedTasks();
   }, []);
 
   useEffect(() => {
-    AsyncStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(tasks));
-  }, [tasks]);
-
-  async function loadTasks() {
-    const storedTasks = await AsyncStorage.getItem(TASKS_STORAGE_KEY);
-
-    if (!storedTasks) {
+    if (tasks.length === 0) {
       return;
     }
 
-    const parsedTasks: Task[] = JSON.parse(storedTasks);
-
-    setTasks(carryForwardTasks(parsedTasks));
-  }
+    saveTasks(tasks);
+  }, [tasks]);
 
   function toggleTask(id: string) {
     setTasks((currentTasks) =>
