@@ -1,9 +1,7 @@
 import TaskItem from "@/components/TaskItem";
-import { loadTasks, saveTasks } from "@/services/taskStorage";
-import { carryForwardTasks, getToday } from "@/services/taskUtils";
-import { Task } from "@/types/task";
+import { useTasks } from "@/hooks/useTasks";
+import { getToday } from "@/services/taskUtils";
 import { Link } from "expo-router";
-import { useEffect, useState } from "react";
 import {
   Pressable,
   ScrollView,
@@ -15,86 +13,20 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-
-  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
-  const [editingTaskTitle, setEditingTaskTitle] = useState("");
-
-  useEffect(() => {
-    async function loadSavedTasks() {
-      const savedTasks = await loadTasks();
-      setTasks(carryForwardTasks(savedTasks));
-    }
-
-    loadSavedTasks();
-  }, []);
-
-  useEffect(() => {
-    if (tasks.length === 0) {
-      return;
-    }
-
-    saveTasks(tasks);
-  }, [tasks]);
-
-  function toggleTask(id: string) {
-    setTasks((currentTasks) =>
-      currentTasks.map((task) =>
-        task.id === id
-          ? {
-              ...task,
-              completed: !task.completed,
-              completedAt: task.completed
-                ? undefined
-                : new Date().toISOString(),
-            }
-          : task,
-      ),
-    );
-  }
-
-  function addTask() {
-    const title = newTaskTitle.trim();
-    if (!title) return;
-
-    const newTask: Task = {
-      id: Date.now().toString(),
-      title,
-      completed: false,
-      date: getToday(),
-      carriedForward: false,
-    };
-    setTasks((currentTasks) => [...currentTasks, newTask]);
-    setNewTaskTitle("");
-  }
-
-  function deleteTask(id: string) {
-    setTasks((currentTasks) => currentTasks.filter((task) => task.id !== id));
-  }
-
-  function startEditingTask(task: Task) {
-    setEditingTaskId(task.id);
-    setEditingTaskTitle(task.title);
-  }
-
-  function saveEditedTask() {
-    const title = editingTaskTitle.trim();
-
-    if (!title || !editingTaskId) {
-      return;
-    }
-
-    setTasks((currentTasks) =>
-      currentTasks.map((task) =>
-        task.id === editingTaskId ? { ...task, title } : task,
-      ),
-    );
-
-    setEditingTaskId(null);
-    setEditingTaskTitle("");
-  }
+  const {
+    tasks,
+    newTaskTitle,
+    setNewTaskTitle,
+    editingTaskId,
+    editingTaskTitle,
+    setEditingTaskTitle,
+    toggleTask,
+    addTask,
+    deleteTask,
+    startEditingTask,
+    saveEditedTask,
+    cancelEditingTask,
+  } = useTasks();
 
   const todayTasks = tasks.filter((task) => task.date === getToday());
   const completedToday = todayTasks.filter((task) => task.completed).length;
@@ -148,10 +80,7 @@ export default function HomeScreen() {
                 onEdit={() => startEditingTask(task)}
                 onDelete={() => deleteTask(task.id)}
                 onSave={saveEditedTask}
-                onCancel={() => {
-                  setEditingTaskId(null);
-                  setEditingTaskTitle("");
-                }}
+                onCancel={cancelEditingTask}
                 onEditingTitleChange={setEditingTaskTitle}
               />
             ))
