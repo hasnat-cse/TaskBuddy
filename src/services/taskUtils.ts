@@ -31,3 +31,14 @@ export function carryForwardTasks(tasks: Task[]): Task[] {
 
   return [...updatedTasks, ...carriedForwardTasks];
 }
+
+export function groupTasksByDate(tasks: Task[]) {
+  return tasks.reduce<Record<string, Task[]>>((groups, task) => {
+    if (!groups[task.date]) {
+      groups[task.date] = [];
+    }
+
+    groups[task.date].push(task);
+    return groups;
+  }, {});
+}

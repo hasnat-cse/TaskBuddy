@@ -1,23 +1,11 @@
 import { loadTasks } from "@/services/taskStorage";
+import { groupTasksByDate } from "@/services/taskUtils";
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Task } from "@/types/task";
-
-const TASKS_STORAGE_KEY = "taskbuddy_tasks";
-
-function groupTasksByDate(tasks: Task[]) {
-  return tasks.reduce<Record<string, Task[]>>((groups, task) => {
-    if (!groups[task.date]) {
-      groups[task.date] = [];
-    }
-
-    groups[task.date].push(task);
-    return groups;
-  }, {});
-}
 
 function formatDate(date: string) {
   return new Date(`${date}T00:00:00`).toLocaleDateString(undefined, {
