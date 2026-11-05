@@ -1,9 +1,8 @@
+import { loadTasks } from "@/services/taskStorage";
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { Task } from "@/types/task";
 
@@ -32,17 +31,12 @@ export default function HistoryScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   useEffect(() => {
-    async function loadTasks() {
-      const storedTasks = await AsyncStorage.getItem(TASKS_STORAGE_KEY);
-
-      if (!storedTasks) {
-        return;
-      }
-
-      setTasks(JSON.parse(storedTasks));
+    async function fetchTasks() {
+      const savedTasks = await loadTasks();
+      setTasks(savedTasks);
     }
 
-    loadTasks();
+    fetchTasks();
   }, []);
 
   return (
