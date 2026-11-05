@@ -113,14 +113,6 @@ const styles = StyleSheet.create({
     marginTop: 40,
     padding: 24,
   },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-  },
-  emptyText: {
-    fontSize: 16,
-    marginTop: 8,
-  },
   taskList: {
     marginTop: 32,
     gap: 12,
