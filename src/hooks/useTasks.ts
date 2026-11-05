@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
-import { Task } from "@/types/task";
 import { loadTasks, saveTasks } from "@/services/taskStorage";
 import { carryForwardTasks, getToday } from "@/services/taskUtils";
+import { Task } from "@/types/task";
+import { useEffect, useState } from "react";
 
 export function useTasks() {
+  const [isLoaded, setIsLoaded] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
@@ -13,18 +14,19 @@ export function useTasks() {
     async function loadSavedTasks() {
       const savedTasks = await loadTasks();
       setTasks(carryForwardTasks(savedTasks));
+      setIsLoaded(true);
     }
 
     loadSavedTasks();
   }, []);
 
   useEffect(() => {
-    if (tasks.length === 0) {
+    if (!isLoaded) {
       return;
     }
 
     saveTasks(tasks);
-  }, [tasks]);
+  }, [tasks, isLoaded]);
 
   function toggleTask(id: string) {
     setTasks((currentTasks) =>
